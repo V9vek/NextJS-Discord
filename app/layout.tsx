@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Open_Sans } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import ThemeProvider from "@/components/providers/theme-provider";
+import { cn } from "@/lib/utils";
 
 const font = Open_Sans({ subsets: ["latin"] });
 
@@ -17,8 +19,22 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
-        <body className={`${font.className} antialiased`}>{children}</body>
+      <html lang="en" suppressHydrationWarning>
+        <body
+          className={cn(
+            font.className,
+            "bg-white dark:bg-[#313338] antialiased"
+          )}
+        >
+          <ThemeProvider
+            attribute="class"
+            enableSystem={false}
+            defaultTheme="dark"
+            storageKey="discord-theme"
+          >
+            {children}
+          </ThemeProvider>
+        </body>
       </html>
     </ClerkProvider>
   );
