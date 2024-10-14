@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 export default async function SetupPage() {
   const profile = await initialProfile();
-  console.log(profile);
+//   console.log(profile);
 
   const server = await prisma.server.findFirst({
     where: {
