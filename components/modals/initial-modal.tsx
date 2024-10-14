@@ -1,5 +1,5 @@
 "use client";
-
+import axios from "axios";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -23,25 +23,37 @@ import { Input } from "../ui/input";
 import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { FileUpload } from "../file-upload";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Server name is required." }),
-  image: z.string().min(1, { message: "Server image is required." }),
+  imageUrl: z.string().min(1, { message: "Server image is required." }),
 });
 
 export default function InitialModal() {
+  const router = useRouter();
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      image: "",
+      imageUrl: "",
     },
   });
 
   const isLoading = form.formState.isSubmitting;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    try {
+      console.log(values);
+      await axios.post("/api/servers", values);
+
+      form.reset();
+      router.refresh();
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   //   console.log("Form errors", form.formState.errors);
@@ -65,7 +77,7 @@ export default function InitialModal() {
               <div className="flex items-center justify-center">
                 <FormField
                   control={form.control}
-                  name="image"
+                  name="imageUrl"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
