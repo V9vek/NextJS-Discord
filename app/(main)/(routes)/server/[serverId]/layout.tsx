@@ -11,7 +11,6 @@ export default async function ServerIdLayout({
   children: React.ReactNode;
   params: { serverId: string };
 }) {
-  console.log(params);
 
   const profile = await currentProfile();
 
