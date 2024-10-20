@@ -53,7 +53,6 @@ export default function CreateServerModal() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      console.log(values);
       await axios.post("/api/servers", values);
 
       form.reset();

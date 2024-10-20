@@ -27,7 +27,10 @@ import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Server name is required." }),
-  imageUrl: z.string().min(1, { message: "Server image is required." }),
+  imageUrl: z.object({
+    url: z.string().min(1, { message: "Server image URL is required." }),
+    type: z.string().min(1, { message: "Image type is required." }),
+  }),
 });
 
 export default function InitialModal() {
@@ -37,7 +40,7 @@ export default function InitialModal() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      imageUrl: "",
+      imageUrl: { url: "", type: "" },
     },
   });
 
@@ -45,7 +48,6 @@ export default function InitialModal() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      console.log(values);
       await axios.post("/api/servers", values);
 
       form.reset();

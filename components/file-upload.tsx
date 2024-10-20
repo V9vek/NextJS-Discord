@@ -11,7 +11,7 @@ interface FileUploadProps {
 }
 
 export function FileUpload({ endpoint, value, onChange }: FileUploadProps) {
-  const fileType = value.type?.split("/").pop();
+  const fileType = value ? value.type?.split("/").pop() : "notPDF";
 
   if (value.url && fileType !== "pdf") {
     return (
@@ -59,7 +59,7 @@ export function FileUpload({ endpoint, value, onChange }: FileUploadProps) {
     <UploadDropzone
       endpoint={endpoint}
       onClientUploadComplete={(res) => {
-        console.log("server image upload complete");
+        console.log("server image or file upload complete");
         onChange({ url: res[0].url, type: res[0].type });
       }}
       onUploadError={(error) => {

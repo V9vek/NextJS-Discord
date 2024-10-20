@@ -29,7 +29,10 @@ import { useEffect } from "react";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Server name is required." }),
-  imageUrl: z.string().min(1, { message: "Server image is required." }),
+  imageUrl: z.object({
+    url: z.string().min(1, { message: "Server image URL is required." }),
+    type: z.string().min(1, { message: "Image type is required." }),
+  }),
 });
 
 export default function EditServerModal() {
@@ -45,14 +48,14 @@ export default function EditServerModal() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      imageUrl: "",
+      imageUrl: { url: "", type: "" },
     },
   });
 
   useEffect(() => {
     if (isModalOpen && server) {
       form.setValue("name", server.name);
-      form.setValue("imageUrl", server.imageUrl);
+      form.setValue("imageUrl", { url: server.imageUrl, type: "" });
     }
   }, [server, form, isModalOpen]);
 
