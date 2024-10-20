@@ -11,15 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
-import { Input } from "../ui/input";
+import { Form, FormControl, FormField, FormItem } from "../ui/form";
+import qs from "query-string";
 import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { FileUpload } from "../file-upload";
@@ -27,25 +20,24 @@ import { useRouter } from "next/navigation";
 import { useModal } from "@/hooks/use-modal-store";
 
 const formSchema = z.object({
-  name: z.string().min(1, { message: "Server name is required." }),
-  imageUrl: z.object({
-    url: z.string().min(1, { message: "Server image URL is required." }),
-    type: z.string().min(1, { message: "Image type is required." }),
+  fileUrl: z.object({
+    url: z.string().min(1, { message: "File URL is required." }),
+    type: z.string().min(1, { message: "Type is required." }),
   }),
 });
 
-export default function CreateServerModal() {
-  const { isOpen, onClose, type } = useModal();
-
-  const isModalOpen = isOpen && type === "createServer";
+export default function MessageFileModal() {
+  const { isOpen, onClose, type, data } = useModal();
 
   const router = useRouter();
+
+  const isModalOpen = isOpen && type === "messageFile";
+  const { apiUrl, query } = data;
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      imageUrl: { url: "", type: "" }
+      fileUrl: {url: "", type: ""},
     },
   });
 
@@ -53,13 +45,15 @@ export default function CreateServerModal() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      console.log(values);
-      await axios.post("/api/servers", values);
+      const url = qs.stringifyUrl({
+        url: apiUrl || "",
+        query: query,
+      });
 
-      form.reset();
+      await axios.post(url, { ...values, content: values.fileUrl.url });
+
+      handleClose();
       router.refresh();
-      onClose();
-      // window.location.reload();
     } catch (error) {
       console.error(error);
     }
@@ -77,11 +71,10 @@ export default function CreateServerModal() {
       <DialogContent className="bg-white text-black p-0 overflow-hidden">
         <DialogHeader className="pt-8 px-6">
           <DialogTitle className="text-2xl text-center font-bold">
-            Customize your server
+            Add an attachment
           </DialogTitle>
           <DialogDescription className="text-zinc-500 text-center">
-            Give your server a personality with a name and an image. You can
-            always change it later.
+            Send a file as a message.
           </DialogDescription>
         </DialogHeader>
 
@@ -91,12 +84,12 @@ export default function CreateServerModal() {
               <div className="flex items-center justify-center">
                 <FormField
                   control={form.control}
-                  name="imageUrl"
+                  name="fileUrl"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
                         <FileUpload
-                          endpoint="serverImage"
+                          endpoint="messageFile"
                           value={field.value}
                           onChange={field.onChange}
                         />
@@ -105,32 +98,15 @@ export default function CreateServerModal() {
                   )}
                 />
               </div>
-
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70">
-                      Server Name
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={isLoading}
-                        className="bg-zinc-300/50 border-0 focus-visible: ring-0 text-black
-                        focus-visible:ring-offset-0"
-                        placeholder="Enter server name"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
             <DialogFooter className="bg-gray-100 px-6 py-4">
-              <Button type="submit" disabled={isLoading} variant="primary">
-                Create
+              <Button
+                className="w-full"
+                type="submit"
+                disabled={isLoading}
+                variant="primary"
+              >
+                Send
               </Button>
             </DialogFooter>
           </form>

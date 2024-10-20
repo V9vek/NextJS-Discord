@@ -1,7 +1,6 @@
 import { currentProfilePages } from "@/lib/current-profile-pages";
 import prisma from "@/lib/db";
 import { NextApiResponseServerIo } from "@/types";
-import { error } from "console";
 import { NextApiRequest } from "next";
 
 export default async function handler(
@@ -73,7 +72,7 @@ export default async function handler(
     const message = await prisma.message.create({
       data: {
         content: content,
-        fileUrl: fileUrl,
+        fileUrl: fileUrl?.url,
         channelId: channelId as string,
         memberId: member.id,
       },
