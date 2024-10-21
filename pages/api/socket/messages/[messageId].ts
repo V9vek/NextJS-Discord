@@ -29,10 +29,6 @@ export default async function handler(
       return res.status(400).json({ error: "Channel ID missing" });
     }
 
-    if (!content) {
-      return res.status(400).json({ error: "Content can not be empty" });
-    }
-
     const server = await prisma.server.findFirst({
       where: {
         id: serverId as string,
@@ -118,6 +114,10 @@ export default async function handler(
     }
 
     if (req.method === "PATCH") {
+      if (!content) {
+        return res.status(400).json({ error: "Content can not be empty" });
+      }
+      
       if (!isMessageOwner) {
         return res.status(401).json({ error: "Unauthorized" });
       }
