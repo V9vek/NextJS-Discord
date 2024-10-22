@@ -49,6 +49,9 @@ export default function ChatMessages({
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({ apiUrl, paramKey, paramValue, queryKey });
 
+  // console.log(data?.pages);
+  // console.log(data?.pages?.[0]?.items?.length);
+
   useChatScroll({
     chatRef,
     bottomRef,
