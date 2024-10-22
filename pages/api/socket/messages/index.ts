@@ -88,7 +88,7 @@ export default async function handler(
     // sending message to other active listening socket connections
     const channelKey = `chat:${channelId}:messages`;
 
-    res?.socket?.server?.io.emit(channelKey, message);
+    res.socket.server.io.emit(channelKey, message);
 
     return res.status(200).json({ message: message });
   } catch (error) {

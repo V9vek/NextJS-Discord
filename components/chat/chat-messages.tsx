@@ -9,6 +9,7 @@ import { MessageWithMemberWithProfile } from "@/types";
 import ChatItem from "./chat-item";
 
 import { format } from "date-fns";
+import { useChatSocket } from "@/hooks/use-chat-socket";
 
 const DATE_FORMAT = "d MMM yyyy, HH:mm";
 
@@ -36,6 +37,10 @@ export default function ChatMessages({
   type,
 }: ChatMessagesProps) {
   const queryKey = `chat:${chatId}`;
+  const addKey = `chat:${chatId}:messages`;
+  const updateKey = `chat:${chatId}:messages:update`;
+
+  useChatSocket({ addKey: addKey, queryKey: queryKey, updateKey: updateKey });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({ apiUrl, paramKey, paramValue, queryKey });

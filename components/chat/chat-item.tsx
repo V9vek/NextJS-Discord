@@ -18,6 +18,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import axios from "axios";
 import { useModal } from "@/hooks/use-modal-store";
+import { useParams, useRouter } from "next/navigation";
 
 interface ChatItemProps {
   id: string;
@@ -82,6 +83,25 @@ export default function ChatItem({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  const isLoading = form.formState.isSubmitting;
+
+  const router = useRouter();
+  const params = useParams();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const { onOpen } = useModal();
+
+  const isAdmin = currentMember.role === MemberRole.ADMIN;
+  const isModerator = currentMember.role === MemberRole.MODERATOR;
+  const isOwner = currentMember.id === member.id;
+
+  const canDeleteMessage = !deleted && (isAdmin || isModerator || isOwner);
+  const canEditMessage = !deleted && isOwner && !fileUrl;
+
+  const fileType = fileUrl?.split(".").pop();
+  const isPdf = fileType === "pdf" && fileUrl;
+  const isImage = fileType !== "pdf" && fileUrl;
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const url = qs.stringifyUrl({
@@ -98,32 +118,29 @@ export default function ChatItem({
     }
   };
 
-  const isLoading = form.formState.isSubmitting;
-
-  const [isEditing, setIsEditing] = useState(false);
-  const { onOpen } = useModal();
-
-  const isAdmin = currentMember.role === MemberRole.ADMIN;
-  const isModerator = currentMember.role === MemberRole.MODERATOR;
-  const isOwner = currentMember.id === member.id;
-
-  const canDeleteMessage = !deleted && (isAdmin || isModerator || isOwner);
-  const canEditMessage = !deleted && isOwner && !fileUrl;
-
-  const fileType = fileUrl?.split(".").pop();
-  const isPdf = fileType === "pdf" && fileUrl;
-  const isImage = fileType !== "pdf" && fileUrl;
+  const onMemberClick = () => {
+    if (member.id === currentMember.id) {
+      return;
+    }
+    router.push(`/server/${params?.serverId}/conversations/${member.id}`);
+  };
 
   return (
     <div className="relative group flex hover:bg-black/5 items-center p-4 transition w-full">
       <div className="group flex gap-x-2 items-start w-full">
-        <div className="cursor-pointer hover:drop-shadow-md transition">
+        <div
+          onClick={onMemberClick}
+          className="cursor-pointer hover:drop-shadow-md transition"
+        >
           <UserAvatar src={member.profile.imageUrl} classname="md:w-7 md:h-7" />
         </div>
         <div className="flex flex-col w-full">
           <div className="flex items-center gap-x-2">
             <div className="flex items-center">
-              <p className="font-semibold text-sm hover:underline cursor-pointer">
+              <p
+                onClick={onMemberClick}
+                className="font-semibold text-sm hover:underline cursor-pointer"
+              >
                 {member.profile.name}
               </p>
               <ActionTooltip label={member.role}>
